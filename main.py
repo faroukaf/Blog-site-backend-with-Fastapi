@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from typing import Optional
+from sqlalchemy.orm import Session
 from schema import blog
 from db import models
-from db.db import engine
+from db.db import engine, get_db
 
 
 app = FastAPI(description='blog api')
@@ -45,13 +46,19 @@ def view_blog_comments(blog_id: int) -> dict:
   }
 
 @app.post('/blog')
-def create_blog(my_request: blog.Blog):
-  return {
-    'data': {
-      'title': my_request.title,
-      'body': my_request.body,
-      'published': my_request.published
-    }
-  }
+def create_blog(
+  my_request: blog.Blog,
+  db: Session = Depends(get_db)
+):
+  blog = models.Blog(
+    title = my_request.title,
+    body = my_request.body,
+  )
+
+  db.add(blog)
+  db.commit()
+  db.refresh(blog)
+
+  return {'data': blog}
 
 
