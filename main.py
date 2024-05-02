@@ -1,14 +1,11 @@
 from fastapi import FastAPI
 from typing import Optional
-from pydantic import BaseModel
+from schema import blog
 
 
 app = FastAPI(description='blog api')
 
-class Blog(BaseModel):
-  title: str
-  body: str
-  published: Optional[bool]
+
 
 @app.get('/blog')
 def index(
@@ -44,9 +41,13 @@ def view_blog_comments(blog_id: int) -> dict:
   }
 
 @app.post('/blog')
-def create_blog(request: Blog):
+def create_blog(my_request: blog.Blog):
   return {
-    'data': 'blog created'
+    'data': {
+      'title': my_request.title,
+      'body': my_request.body,
+      'published': my_request.published
+    }
   }
 
 
