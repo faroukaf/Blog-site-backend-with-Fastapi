@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from typing import Optional
 from schema import blog
+from db import models
+from db.db import engine
 
 
 app = FastAPI(description='blog api')
 
+# Startup database (magritte)
+models.Base.metadata.create_all(engine)
 
 
 @app.get('/blog')
