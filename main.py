@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, status, Response, HTTPException
 from typing import Optional
 from sqlalchemy.orm import Session
 from schema import blog
@@ -14,30 +14,47 @@ models.Base.metadata.create_all(engine)
 
 @app.get('/blog')
 def index(
-  published: bool, 
+  published: Optional[bool] = False, 
   limit: int = 10,
-  sort: Optional[bool] = None
-):
+  sort: Optional[bool] = None,
+  db: Session = Depends(get_db)
+) :
+  blogs = db.query(models.Blog).all()
   if published:
     return {
       'data': f'{limit} blog list published'
     }
 
   else:
-    return {
-      'data': f'{limit} blog list un/published'
-    }
+    # return {
+    #   'data': [blogs, str(type(blogs)), str(type(blogs[0]))]
+    # }
+    return blogs
 
 
 @app.get('/blog/unpublished')
 def unpublished():
   return 'jk'
 
-@app.get('/blog/{blog_id}')
-def view_blog(blog_id: int) -> dict:
-  return {
-    'data': blog_id
-  }
+@app.get('/blog/{blog_id}', status_code=status.HTTP_200_OK)
+def view_blog(
+  blog_id: int,
+  response: Response,
+  db: Session = Depends(get_db)
+  
+):
+  blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+  # return {
+  #   'data': str(type(blog))
+  # }
+  if not blog:
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail=f'Blog with id {blog_id} not exist'
+    )
+    # response.status_code = status.HTTP_404_NOT_FOUND
+    # return {'detail': }
+  return blog
 
 @app.get('/blog/{blog_id}/comments')
 def view_blog_comments(blog_id: int) -> dict:
@@ -45,7 +62,7 @@ def view_blog_comments(blog_id: int) -> dict:
     'data': [1, 2]
   }
 
-@app.post('/blog')
+@app.post('/blog', status_code=status.HTTP_201_CREATED)
 def create_blog(
   my_request: blog.Blog,
   db: Session = Depends(get_db)
@@ -59,6 +76,6 @@ def create_blog(
   db.commit()
   db.refresh(blog)
 
-  return {'data': blog}
+  return blog
 
 
