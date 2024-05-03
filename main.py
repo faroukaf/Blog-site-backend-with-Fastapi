@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, status, HTTPException
 from typing import Optional, List
 from sqlalchemy.orm import Session
-from schema import blog
+from schema import blog, user
 from db import models
 from db.db import engine, get_db
 
@@ -124,5 +124,22 @@ def update_blog(
   db.commit()
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
   return blog
+
+
+
+@app.post(
+  '/user',
+  status_code=status.HTTP_201_CREATED,
+  response_model=user.ShowUser
+)
+def create_user(
+  my_request: user.User,
+  db: Session = Depends(get_db)
+):
+  new_user = models.User(**my_request.model_dump())
+  db.add(new_user)
+  db.commit()
+  db.refresh(new_user)
+  return new_user
 
 
