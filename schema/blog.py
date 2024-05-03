@@ -6,3 +6,8 @@ class Blog(BaseModel):
   title: str
   body: str
   published: Optional[bool]
+
+
+class BlogModel(Blog):
+  class Config:
+    orm_mode = True

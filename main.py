@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, status, HTTPException
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy.orm import Session
 from schema import blog
 from db import models
@@ -12,8 +12,12 @@ app = FastAPI(description='blog api')
 models.Base.metadata.create_all(engine)
 
 
-@app.get('/blog')
-def index(
+@app.get(
+    '/blog',
+    status_code=status.HTTP_200_OK,
+    response_model=List[blog.BlogModel]
+)
+async def index(
   published: Optional[bool] = False, 
   limit: int = 10,
   sort: Optional[bool] = None,
@@ -36,7 +40,11 @@ def index(
 def unpublished():
   return 'jk'
 
-@app.get('/blog/{blog_id}', status_code=status.HTTP_200_OK)
+@app.get(
+    '/blog/{blog_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=blog.BlogModel
+)
 def view_blog(
   blog_id: int,
   db: Session = Depends(get_db)
