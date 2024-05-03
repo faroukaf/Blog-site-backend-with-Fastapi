@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, status, Response, HTTPException
+from fastapi import FastAPI, Depends, status, HTTPException
 from typing import Optional
 from sqlalchemy.orm import Session
 from schema import blog
@@ -39,7 +39,6 @@ def unpublished():
 @app.get('/blog/{blog_id}', status_code=status.HTTP_200_OK)
 def view_blog(
   blog_id: int,
-  response: Response,
   db: Session = Depends(get_db)
   
 ):
@@ -77,5 +76,29 @@ def create_blog(
   db.refresh(blog)
 
   return blog
+
+
+@app.delete('/blog/{blog_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_blog(
+  blog_id: int,
+  db: Session = Depends(get_db)
+  
+):
+  blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+  # return {
+  #   'data': str(type(blog))
+  # }
+  if not blog:
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail=f'Blog with id {blog_id} not exist'
+    )
+  
+  db.query(models.Blog).filter(models.Blog.id == blog_id).\
+    delete(synchronize_session=False)
+  db.commit()
+  return {
+    'detail': 'Blog with id {blog_id} Deleted'
+  }
 
 
