@@ -43,16 +43,13 @@ def view_blog(
   
 ):
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
-  # return {
-  #   'data': str(type(blog))
-  # }
+
   if not blog:
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND,
       detail=f'Blog with id {blog_id} not exist'
     )
-    # response.status_code = status.HTTP_404_NOT_FOUND
-    # return {'detail': }
+
   return blog
 
 @app.get('/blog/{blog_id}/comments')
@@ -84,21 +81,40 @@ def delete_blog(
   db: Session = Depends(get_db)
   
 ):
-  blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
-  # return {
-  #   'data': str(type(blog))
-  # }
-  if not blog:
+  blog = db.query(models.Blog).filter(models.Blog.id == blog_id)
+
+  if not blog.first():
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND,
       detail=f'Blog with id {blog_id} not exist'
     )
   
-  db.query(models.Blog).filter(models.Blog.id == blog_id).\
-    delete(synchronize_session=False)
+  blog.delete(synchronize_session=False)
   db.commit()
   return {
     'detail': 'Blog with id {blog_id} Deleted'
   }
+
+
+
+@app.put('/blog/{blog_id}', status_code=status.HTTP_202_ACCEPTED)
+def update_blog(
+  blog_id: int,
+  my_request: blog.Blog,
+  db: Session = Depends(get_db)
+  
+):
+  blog = db.query(models.Blog).filter(models.Blog.id == blog_id)
+
+  if not blog.first():
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail=f'Blog with id {blog_id} not exist'
+    )
+
+  blog.update(my_request.model_dump())
+  db.commit()
+  blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+  return blog
 
 
