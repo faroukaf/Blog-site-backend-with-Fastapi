@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel
+from .user import ShowUser
 
 
 class Blog(BaseModel):
@@ -8,6 +9,10 @@ class Blog(BaseModel):
   published: Optional[bool]
 
 
-class ShowBlog(Blog):
+class ShowBlog(BaseModel):
+  title: str
+  body: str
+  published: Optional[bool]
+  author: ShowUser
   class Config:
     orm_mode = True
