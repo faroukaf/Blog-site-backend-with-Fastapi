@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from schema import blog, user
 from db import models
 from db.db import engine, get_db
+from util.hashing import Hash
 
 
 app = FastAPI(description='blog api')
@@ -136,7 +137,9 @@ def create_user(
   my_request: user.User,
   db: Session = Depends(get_db)
 ):
-  new_user = models.User(**my_request.model_dump())
+  inp = my_request.model_dump()
+  inp['password'] = Hash.bcrypt(inp['password'])
+  new_user = models.User(**inp)
   db.add(new_user)
   db.commit()
   db.refresh(new_user)
