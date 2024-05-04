@@ -16,7 +16,8 @@ models.Base.metadata.create_all(engine)
 @app.get(
     '/blog',
     status_code=status.HTTP_200_OK,
-    response_model=List[blog.BlogModel]
+    response_model=List[blog.BlogModel],
+    tags=['Blogs']
 )
 async def index(
   published: Optional[bool] = False, 
@@ -37,14 +38,11 @@ async def index(
     return blogs
 
 
-@app.get('/blog/unpublished')
-def unpublished():
-  return 'jk'
-
 @app.get(
     '/blog/{blog_id}',
     status_code=status.HTTP_200_OK,
-    response_model=blog.BlogModel
+    response_model=blog.BlogModel,
+    tags=['Blogs']
 )
 def view_blog(
   blog_id: int,
@@ -61,13 +59,12 @@ def view_blog(
 
   return blog
 
-@app.get('/blog/{blog_id}/comments')
-def view_blog_comments(blog_id: int) -> dict:
-  return {
-    'data': [1, 2]
-  }
 
-@app.post('/blog', status_code=status.HTTP_201_CREATED)
+@app.post(
+    '/blog',
+    status_code=status.HTTP_201_CREATED,
+    tags=['Blogs']
+)
 def create_blog(
   my_request: blog.Blog,
   db: Session = Depends(get_db)
@@ -84,7 +81,11 @@ def create_blog(
   return blog
 
 
-@app.delete('/blog/{blog_id}', status_code=status.HTTP_204_NO_CONTENT)
+@app.delete(
+    '/blog/{blog_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=['Blogs']
+)
 def delete_blog(
   blog_id: int,
   db: Session = Depends(get_db)
@@ -106,7 +107,11 @@ def delete_blog(
 
 
 
-@app.put('/blog/{blog_id}', status_code=status.HTTP_202_ACCEPTED)
+@app.put(
+    '/blog/{blog_id}',
+    status_code=status.HTTP_202_ACCEPTED,
+    tags=['Blogs']
+)
 def update_blog(
   blog_id: int,
   my_request: blog.Blog,
@@ -131,7 +136,8 @@ def update_blog(
 @app.post(
   '/user',
   status_code=status.HTTP_201_CREATED,
-  response_model=user.ShowUser
+  response_model=user.ShowUser,
+  tags=['Users']
 )
 def create_user(
   my_request: user.User,
@@ -144,5 +150,25 @@ def create_user(
   db.commit()
   db.refresh(new_user)
   return new_user
+
+@app.get(
+  '/user/{user_id}',
+  status_code=status.HTTP_200_OK,
+  response_model=user.ShowUser,
+  tags=['Users']
+)
+def show_user(
+  user_id: str,
+  db: Session = Depends(get_db)
+):
+  user = db.query(models.User).filter(models.User.id == user_id).first()
+  if not user:
+    raise HTTPException(
+      status_code=status.HTTP_404_NOT_FOUND,
+      detail=f'User with id {user_id} not exist'
+    )
+
+  return user
+
 
 
