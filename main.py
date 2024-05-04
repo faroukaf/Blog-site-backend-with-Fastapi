@@ -16,7 +16,7 @@ models.Base.metadata.create_all(engine)
 @app.get(
     '/blog',
     status_code=status.HTTP_200_OK,
-    response_model=List[blog.BlogModel],
+    response_model=List[blog.ShowBlog],
     tags=['Blogs']
 )
 async def index(
@@ -41,7 +41,7 @@ async def index(
 @app.get(
     '/blog/{blog_id}',
     status_code=status.HTTP_200_OK,
-    response_model=blog.BlogModel,
+    response_model=blog.ShowBlog,
     tags=['Blogs']
 )
 def view_blog(

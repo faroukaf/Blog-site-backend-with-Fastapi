@@ -8,6 +8,6 @@ class Blog(BaseModel):
   published: Optional[bool]
 
 
-class BlogModel(Blog):
+class ShowBlog(Blog):
   class Config:
     orm_mode = True
