@@ -3,14 +3,15 @@ from typing import Optional, List
 from sqlalchemy.orm import Session
 from schema import blog, user
 from db import models
-from routers import blog#, user
+from routers import blog, user
 from db.db import engine, get_db
-from util.hashing import Hash
+# from util.hashing import Hash
 
 
 app = FastAPI(description='blog api')
 
 app.include_router(blog.router)
+app.include_router(user.router)
 
 # Startup database (magritte)
 models.Base.metadata.create_all(engine)
@@ -136,7 +137,7 @@ def update_blog(
 """
 
 
-@app.post(
+"""@app.post(
   '/user',
   status_code=status.HTTP_201_CREATED,
   response_model=user.ShowUser,
@@ -172,6 +173,6 @@ def show_user(
     )
 
   return user
-
+"""
 
 
