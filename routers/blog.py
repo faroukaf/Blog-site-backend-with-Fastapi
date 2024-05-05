@@ -19,14 +19,14 @@ router = APIRouter(
     response_model=List[blog.ShowBlog]
 )
 async def index(
+  db: Session = Depends(get_db),
   published: Optional[bool] = False, 
   limit: int = 10,
-  sort: Optional[bool] = None,
-  db: Session = Depends(get_db)
+  sort: Optional[bool] = None
 ) :
   return await bg.index(
-    published, limit,
-    sort, db
+    db, published,
+    limit, sort
   )
 
 

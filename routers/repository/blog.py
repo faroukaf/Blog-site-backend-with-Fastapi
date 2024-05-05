@@ -1,19 +1,18 @@
 import sys
 sys.path.append("...")
-from fastapi import Depends, HTTPException, status
-from typing import List, Optional
+from fastapi import HTTPException, status
+from typing import Optional
 from sqlalchemy.orm import Session
 from schema import blog
 from db import models
-from db.db import get_db
 
 
 
 async def index(
+  db: Session,
   published: Optional[bool] = False, 
   limit: int = 10,
-  sort: Optional[bool] = None,
-  db: Session = Depends(get_db)
+  sort: Optional[bool] = None
 ) :
   if published:
     blogs = db.query(models.Blog).\
@@ -28,8 +27,7 @@ async def index(
 
 def view(
   blog_id: int,
-  db: Session = Depends(get_db)
-  
+  db: Session
 ):
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
 
@@ -44,7 +42,7 @@ def view(
 
 def create(
   my_request: blog.Blog,
-  db: Session = Depends(get_db)
+  db: Session
 ):
   blog = models.Blog(
     title = my_request.title,
@@ -60,7 +58,7 @@ def create(
 
 def delete(
   blog_id: int,
-  db: Session = Depends(get_db)
+  db: Session
   
 ):
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id)
@@ -81,7 +79,7 @@ def delete(
 def update(
   blog_id: int,
   my_request: blog.Blog,
-  db: Session = Depends(get_db)
+  db: Session
   
 ):
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id)
