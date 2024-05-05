@@ -1,22 +1,17 @@
-from fastapi import FastAPI, Depends, status, HTTPException
-from typing import Optional, List
+import sys
+sys.path.append("..")
+from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
 from sqlalchemy.orm import Session
-from schema import blog, user
+from schema import blog
 from db import models
-from routers import blog#, user
-from db.db import engine, get_db
-from util.hashing import Hash
+from db.db import get_db
 
 
-app = FastAPI(description='blog api')
+router = APIRouter()
 
-app.include_router(blog.router)
 
-# Startup database (magritte)
-models.Base.metadata.create_all(engine)
-
-"""
-@app.get(
+@router.get(
     '/blog',
     status_code=status.HTTP_200_OK,
     response_model=List[blog.ShowBlog],
@@ -41,7 +36,7 @@ async def index(
     return blogs
 
 
-@app.get(
+@router.get(
     '/blog/{blog_id}',
     status_code=status.HTTP_200_OK,
     response_model=blog.ShowBlog,
@@ -63,7 +58,7 @@ def view_blog(
   return blog
 
 
-@app.post(
+@router.post(
     '/blog',
     status_code=status.HTTP_201_CREATED,
     tags=['Blogs']
@@ -84,7 +79,7 @@ def create_blog(
   return blog
 
 
-@app.delete(
+@router.delete(
     '/blog/{blog_id}',
     status_code=status.HTTP_204_NO_CONTENT,
     tags=['Blogs']
@@ -110,7 +105,7 @@ def delete_blog(
 
 
 
-@app.put(
+@router.put(
     '/blog/{blog_id}',
     status_code=status.HTTP_202_ACCEPTED,
     tags=['Blogs']
@@ -133,45 +128,6 @@ def update_blog(
   db.commit()
   blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
   return blog
-"""
-
-
-@app.post(
-  '/user',
-  status_code=status.HTTP_201_CREATED,
-  response_model=user.ShowUser,
-  tags=['Users']
-)
-def create_user(
-  my_request: user.User,
-  db: Session = Depends(get_db)
-):
-  inp = my_request.model_dump()
-  inp['password'] = Hash.bcrypt(inp['password'])
-  new_user = models.User(**inp)
-  db.add(new_user)
-  db.commit()
-  db.refresh(new_user)
-  return new_user
-
-@app.get(
-  '/user/{user_id}',
-  status_code=status.HTTP_200_OK,
-  response_model=user.ShowUser,
-  tags=['Users']
-)
-def show_user(
-  user_id: str,
-  db: Session = Depends(get_db)
-):
-  user = db.query(models.User).filter(models.User.id == user_id).first()
-  if not user:
-    raise HTTPException(
-      status_code=status.HTTP_404_NOT_FOUND,
-      detail=f'User with id {user_id} not exist'
-    )
-
-  return user
 
 
 
