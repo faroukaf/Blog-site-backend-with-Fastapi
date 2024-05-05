@@ -1,12 +1,9 @@
 import sys
 sys.path.append("..")
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from schema import user
-from db import models
 from db.db import get_db
-from util.hashing import Hash
 from .repository import user as ur
 
 
