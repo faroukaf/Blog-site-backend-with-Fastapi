@@ -9,14 +9,16 @@ from db.db import get_db
 
 
 
-router = APIRouter()
+router = APIRouter(
+  prefix='/blog',
+  tags=['Blogs']
+)
 
 
 @router.get(
-    '/blog',
+    '/',
     status_code=status.HTTP_200_OK,
-    response_model=List[blog.ShowBlog],
-    tags=['Blogs']
+    response_model=List[blog.ShowBlog]
 )
 async def index(
   published: Optional[bool] = False, 
@@ -38,10 +40,9 @@ async def index(
 
 
 @router.get(
-    '/blog/{blog_id}',
+    '/{blog_id}',
     status_code=status.HTTP_200_OK,
-    response_model=blog.ShowBlog,
-    tags=['Blogs']
+    response_model=blog.ShowBlog
 )
 def view_blog(
   blog_id: int,
@@ -60,9 +61,8 @@ def view_blog(
 
 
 @router.post(
-    '/blog',
-    status_code=status.HTTP_201_CREATED,
-    tags=['Blogs']
+    '/',
+    status_code=status.HTTP_201_CREATED
 )
 def create_blog(
   my_request: blog.Blog,
@@ -81,9 +81,8 @@ def create_blog(
 
 
 @router.delete(
-    '/blog/{blog_id}',
-    status_code=status.HTTP_204_NO_CONTENT,
-    tags=['Blogs']
+    '/{blog_id}',
+    status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_blog(
   blog_id: int,
@@ -107,9 +106,8 @@ def delete_blog(
 
 
 @router.put(
-    '/blog/{blog_id}',
-    status_code=status.HTTP_202_ACCEPTED,
-    tags=['Blogs']
+    '/{blog_id}',
+    status_code=status.HTTP_202_ACCEPTED
 )
 def update_blog(
   blog_id: int,

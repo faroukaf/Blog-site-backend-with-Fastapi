@@ -10,14 +10,16 @@ from util.hashing import Hash
 
 
 
-router = APIRouter()
+router = APIRouter(
+  prefix='/user',
+  tags=['Users']
+)
 
 
 @router.post(
-  '/user',
+  '/',
   status_code=status.HTTP_201_CREATED,
-  response_model=user.ShowUser,
-  tags=['Users']
+  response_model=user.ShowUser
 )
 def create_user(
   my_request: user.User,
@@ -32,10 +34,9 @@ def create_user(
   return new_user
 
 @router.get(
-  '/user/{user_id}',
+  '/{user_id}',
   status_code=status.HTTP_200_OK,
-  response_model=user.ShowUser,
-  tags=['Users']
+  response_model=user.ShowUser
 )
 def show_user(
   user_id: str,
