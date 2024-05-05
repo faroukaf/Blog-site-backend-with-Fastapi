@@ -1,11 +1,7 @@
-from fastapi import FastAPI, Depends, status, HTTPException
-from typing import Optional, List
-from sqlalchemy.orm import Session
-from schema import blog, user
+from fastapi import FastAPI
 from db import models
 from routers import blog, user
-from db.db import engine, get_db
-# from util.hashing import Hash
+from db.db import engine
 
 
 app = FastAPI(description='blog api')
