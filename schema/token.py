@@ -8,7 +8,11 @@ class Token(BaseModel):
   token_type: str
 
 
-class TokenDate(BaseException):
-  username: Optional[str] = None
+class TokenData(BaseModel):
+  email: Optional[str] = None
+
+
+class ReturnToken(BaseModel):
+  pass
 
 

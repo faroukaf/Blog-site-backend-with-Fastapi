@@ -1,6 +1,8 @@
+from fastapi import HTTPException
 from typing import Optional
-from jose import jwt
+from jose import jwt, JWTError
 from datetime import timedelta, datetime
+from schema.token import TokenData
 
 
 
@@ -23,5 +25,21 @@ def create_access_token(
   encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORISM)
   return encoded_jwt
 
+
+
+def verify_token(
+    token: str,
+    credential_exception: HTTPException
+):
+  try:
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORISM])
+    email: str = payload.get('sub')
+
+    if email is None:
+      raise credential_exception
+    token_data = TokenData(email=email)
+  except JWTError:
+    raise credential_exception
+  return token_data
 
 
